@@ -20,30 +20,30 @@ module Data.Acid.Log
     , archiveFileLog
     ) where
 
-import Data.Acid.Archive as Archive
-import System.Directory
-import System.FilePath
-import System.IO
-import FileIO
+import           Data.Acid.Archive      as Archive
+import           FileIO
+import           System.Directory
+import           System.FilePath
+import           System.IO
 
-import Foreign.Ptr
-import Control.Monad
-import Control.Concurrent
-import Control.Concurrent.STM
-import qualified Data.ByteString.Lazy as Lazy
-import qualified Data.ByteString as Strict
+import           Control.Concurrent
+import           Control.Concurrent.STM
+import           Control.Monad
+import qualified Data.ByteString        as Strict
+import qualified Data.ByteString.Lazy   as Lazy
 import qualified Data.ByteString.Unsafe as Strict
-import Data.List
-import Data.Maybe
-import qualified Data.Serialize.Get as Get
-import qualified Data.Serialize.Put as Put
-import Data.SafeCopy                             ( safePut, safeGet, SafeCopy )
+import           Data.List
+import           Data.Maybe
+import           Data.SafeCopy          (SafeCopy, safeGet, safePut)
+import qualified Data.Serialize.Get     as Get
+import qualified Data.Serialize.Put     as Put
+import           Foreign.Ptr
 
-import Text.Printf                               ( printf )
+import           Text.Printf            (printf)
 
-import Paths_acid_state                          ( version )
-import Data.Version                              ( showVersion )
-import Control.Exception                         ( handle, IOException )
+import           Control.Exception      (IOException, handle)
+import           Data.Version           (showVersion)
+import           Paths_acid_state       (version)
 
 type EntryId = Int
 
@@ -321,7 +321,7 @@ newestEntry identifier = do
 pushEntry :: SafeCopy object => FileLog object -> object -> IO () -> IO ()
 pushEntry fLog object finally = atomically $ do
   tid <- readTVar (logNextEntryId fLog)
-  writeTVar (logNextEntryId fLog) (tid+1)
+  writeTVar (logNextEntryId fLog) $! (tid+1)
   (entries, actions) <- readTVar (logQueue fLog)
   writeTVar (logQueue fLog) ( encoded : entries, finally : actions )
  where
